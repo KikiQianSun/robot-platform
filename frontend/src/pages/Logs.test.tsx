@@ -1,11 +1,20 @@
-import { render, screen, waitFor, act, fireEvent } from '@testing-library/react'
+import { render, screen, waitFor, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+import type { AxiosResponse } from 'axios'
 import type { CsvUploadResult, UploadRecord } from '../lib/api'
 import Logs from './Logs'
 import { filesApi } from '../lib/api'
 
 const openSpy = vi.fn<(url?: string | URL, target?: string, features?: string) => Window | null>(() => null)
+
+const mockResponse = <T,>(data: T): AxiosResponse<T> => ({
+  data,
+  status: 200,
+  statusText: 'OK',
+  headers: {},
+  config: { headers: {} as never },
+})
 
 vi.mock('../lib/api', () => ({
   filesApi: {
@@ -27,7 +36,7 @@ describe('Logs page', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     vi.stubGlobal('open', openSpy)
-    vi.mocked(filesApi.history).mockResolvedValue({ data: [] } as { data: UploadRecord[] })
+    vi.mocked(filesApi.history).mockResolvedValue(mockResponse([]))
   })
 
   afterEach(() => {
@@ -36,8 +45,8 @@ describe('Logs page', () => {
   })
 
   it('uploads csv successfully and shows upload result', async () => {
-    vi.mocked(filesApi.uploadCsv).mockResolvedValue({
-      data: {
+    vi.mocked(filesApi.uploadCsv).mockResolvedValue(
+      mockResponse({
         filename: 'stored.csv',
         url: 'http://localhost:8000/api/v1/files/stored.csv',
         original_filename: 'upload.csv',
@@ -47,8 +56,8 @@ describe('Logs page', () => {
         unknown_columns: [],
         errors: [],
         field_specs: [],
-      },
-    } as { data: CsvUploadResult })
+      } satisfies CsvUploadResult),
+    )
 
     const { container } = render(<Logs />)
     const input = container.querySelector('input[type="file"]') as HTMLInputElement
@@ -62,7 +71,7 @@ describe('Logs page', () => {
   })
 
   it('opens viewer from upload history', async () => {
-    vi.mocked(filesApi.history).mockResolvedValue({ data: [historyItem] } as { data: UploadRecord[] })
+    vi.mocked(filesApi.history).mockResolvedValue(mockResponse([historyItem]))
 
     render(<Logs />)
 
@@ -72,13 +81,12 @@ describe('Logs page', () => {
   })
 
   it('opens delete modal and deletes file successfully', async () => {
-    vi.useFakeTimers()
-    vi.mocked(filesApi.history).mockResolvedValue({ data: [historyItem] } as { data: UploadRecord[] })
-    vi.mocked(filesApi.remove).mockResolvedValue({ data: { message: 'File deleted' } } as { data: { message: string } })
+    vi.mocked(filesApi.history).mockResolvedValue(mockResponse([historyItem]))
+    vi.mocked(filesApi.remove).mockResolvedValue(mockResponse({ message: 'File deleted' }))
 
     render(<Logs />)
 
-    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
+    const user = userEvent.setup()
     await screen.findByText('logs.csv')
     await user.click(screen.getByRole('button', { name: /删除/i }))
 
@@ -88,15 +96,8 @@ describe('Logs page', () => {
     await waitFor(() => {
       expect(filesApi.remove).toHaveBeenCalledWith(1)
     })
-    expect(screen.getByText('已删除文件：logs.csv')).toBeInTheDocument()
-
-    act(() => {
-      vi.advanceTimersByTime(3000)
-    })
-
-    await waitFor(() => {
-      expect(screen.queryByText('已删除文件：logs.csv')).not.toBeInTheDocument()
-    })
+    expect(await screen.findByText('已删除文件：logs.csv')).toBeInTheDocument()
+    expect(screen.queryByText('logs.csv')).not.toBeInTheDocument()
   })
 
   it('shows validation modal when upload validation fails', async () => {
