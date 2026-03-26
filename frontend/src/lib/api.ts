@@ -1,6 +1,8 @@
 import axios from 'axios';
 
-const BASE_URL = 'https://robot-platform-eight.vercel.app/api/v1';
+const BASE_URL = window.location.hostname === 'localhost'
+  ? 'http://localhost:8000/api/v1'
+  : 'https://robot-platform-eight.vercel.app/api/v1';
 
 export const api = axios.create({
   baseURL: BASE_URL,
