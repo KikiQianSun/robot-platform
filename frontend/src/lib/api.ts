@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = 'https://robot-platform-1466308la-kikiqiansuns-projects.vercel.app/api/v1';
+const BASE_URL = 'https://robot-platform-eight.vercel.app/api/v1';
 
 export const api = axios.create({
   baseURL: BASE_URL,

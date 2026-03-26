@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     SUPABASE_BUCKET: str = "robot-files"
 
     # Public backend base URL (used to build absolute file URLs)
-    PUBLIC_BACKEND_URL: str = "http://localhost:8000"
+    PUBLIC_BACKEND_URL: str = "https://robot-platform-eight.vercel.app"
 
     # File storage
     UPLOAD_DIR: str = "./uploads"
@@ -25,12 +25,12 @@ class Settings(BaseSettings):
     def origins(self) -> List[str]:
         return [
             "http://localhost:5173",
-            "https://robot-platform-frontend-92x0iza4u-kikiqiansuns-projects.vercel.app",
+            "https://robot-platform-frontend.vercel.app",
         ]
 
     @property
     def allowed_origin_regex(self) -> str:
-        return r"https://robot-platform-frontend(?:-[a-z0-9-]+)?-kikiqiansuns-projects\.vercel\.app"
+        return r"https://robot-platform-frontend(?:-[a-z0-9-]+)?\.vercel\.app"
 
     @property
     def is_production(self) -> bool:
