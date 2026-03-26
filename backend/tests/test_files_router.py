@@ -3,6 +3,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
@@ -63,11 +64,14 @@ class FilesRouterTests(unittest.TestCase):
         self.engine.dispose()
         self.temp_dir.cleanup()
 
-    def test_upload_csv_success_creates_file_and_returns_summary(self):
-        response = self.client.post(
+    def upload_valid_csv(self):
+        return self.client.post(
             "/api/v1/files/upload/csv",
             files={"file": ("logs.csv", VALID_CSV.encode("utf-8"), "text/csv")},
         )
+
+    def test_upload_csv_success_creates_file_and_returns_summary(self):
+        response = self.upload_valid_csv()
 
         self.assertEqual(response.status_code, 200)
         data = response.json()
@@ -89,10 +93,7 @@ class FilesRouterTests(unittest.TestCase):
         self.assertIn("location_x", detail["missing_fields"])
 
     def test_history_returns_uploaded_records(self):
-        self.client.post(
-            "/api/v1/files/upload/csv",
-            files={"file": ("logs.csv", VALID_CSV.encode("utf-8"), "text/csv")},
-        )
+        self.upload_valid_csv()
 
         response = self.client.get("/api/v1/files/history")
 
@@ -103,11 +104,36 @@ class FilesRouterTests(unittest.TestCase):
         self.assertEqual(records[0]["row_count"], 2)
         self.assertTrue(records[0]["file_url"].startswith("http://testserver/api/v1/files/"))
 
-    def test_delete_file_removes_physical_file_and_history_record(self):
-        upload_response = self.client.post(
-            "/api/v1/files/upload/csv",
-            files={"file": ("logs.csv", VALID_CSV.encode("utf-8"), "text/csv")},
+    def test_rows_endpoint_returns_filtered_rows(self):
+        self.upload_valid_csv()
+        record_id = self.client.get("/api/v1/files/history").json()[0]["id"]
+
+        response = self.client.get(f"/api/v1/files/history/{record_id}/rows", params={"error_only": True})
+
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(data["total"], 1)
+        self.assertEqual(len(data["items"]), 1)
+        self.assertEqual(data["items"][0]["robot_id"], "robot_002")
+
+    def test_insights_endpoint_returns_fault_and_warning_stats(self):
+        self.upload_valid_csv()
+        record_id = self.client.get("/api/v1/files/history").json()[0]["id"]
+
+        response = self.client.get(
+            f"/api/v1/files/history/{record_id}/insights",
+            params={"scope": "all", "time_window": "1y"},
         )
+
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(data["total_records"], 2)
+        self.assertEqual(data["fault_records"], 1)
+        self.assertEqual(data["warning_records"], 2)
+        self.assertEqual(len(data["time_buckets"]), 1)
+
+    def test_delete_file_removes_physical_file_and_history_record(self):
+        upload_response = self.upload_valid_csv()
         upload_data = upload_response.json()
 
         history_response = self.client.get("/api/v1/files/history")
