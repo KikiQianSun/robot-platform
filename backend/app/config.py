@@ -1,6 +1,6 @@
-from pydantic_settings import BaseSettings
 from typing import List
-import os
+
+from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
@@ -18,15 +18,19 @@ class Settings(BaseSettings):
     # Public backend base URL (used to build absolute file URLs)
     PUBLIC_BACKEND_URL: str = "http://localhost:8000"
 
-    # CORS
-    ALLOWED_ORIGINS: str = "http://localhost:5173"
-
     # File storage
     UPLOAD_DIR: str = "./uploads"
 
     @property
     def origins(self) -> List[str]:
-        return [o.strip() for o in self.ALLOWED_ORIGINS.split(",")]
+        return [
+            "http://localhost:5173",
+            "https://robot-platform-frontend-92x0iza4u-kikiqiansuns-projects.vercel.app",
+        ]
+
+    @property
+    def allowed_origin_regex(self) -> str:
+        return r"https://robot-platform-frontend(?:-[a-z0-9-]+)?-kikiqiansuns-projects\.vercel\.app"
 
     @property
     def is_production(self) -> bool:
