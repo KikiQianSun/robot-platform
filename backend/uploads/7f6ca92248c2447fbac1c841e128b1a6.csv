@@ -1,0 +1,2 @@
+robot_id,timestamp,location_x,location_y,battery_level,device_a_status,device_b_status,speed,error_code
+robot_001,2024-03-15T14:23:01Z,12.34,10.11,20,ok,warning,11,400
