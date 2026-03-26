@@ -5,6 +5,8 @@ import type { CsvUploadResult, UploadRecord } from '../lib/api'
 import Logs from './Logs'
 import { filesApi } from '../lib/api'
 
+const openSpy = vi.fn<(url?: string | URL, target?: string, features?: string) => Window | null>(() => null)
+
 vi.mock('../lib/api', () => ({
   filesApi: {
     uploadCsv: vi.fn(),
@@ -24,11 +26,13 @@ const historyItem: UploadRecord = {
 describe('Logs page', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    vi.stubGlobal('open', openSpy)
     vi.mocked(filesApi.history).mockResolvedValue({ data: [] } as { data: UploadRecord[] })
   })
 
   afterEach(() => {
     vi.useRealTimers()
+    vi.unstubAllGlobals()
   })
 
   it('uploads csv successfully and shows upload result', async () => {
@@ -57,14 +61,14 @@ describe('Logs page', () => {
     expect(filesApi.uploadCsv).toHaveBeenCalledTimes(1)
   })
 
-  it('renders view link from upload history', async () => {
+  it('opens viewer from upload history', async () => {
     vi.mocked(filesApi.history).mockResolvedValue({ data: [historyItem] } as { data: UploadRecord[] })
 
     render(<Logs />)
 
     expect(await screen.findByText('logs.csv')).toBeInTheDocument()
-    const viewLink = screen.getByRole('link', { name: '查看' })
-    expect(viewLink).toHaveAttribute('href', 'http://localhost:8000/api/v1/files/test.csv')
+    await userEvent.setup().click(screen.getByRole('button', { name: '浏览数据' }))
+    expect(openSpy).toHaveBeenCalledWith('/logs/1/view', '_blank')
   })
 
   it('opens delete modal and deletes file successfully', async () => {
