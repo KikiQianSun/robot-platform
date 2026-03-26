@@ -3,7 +3,7 @@ from typing import List
 from pydantic_settings import BaseSettings
 
 
-PRODUCTION_DATABASE_URL = "postgresql://postgres:7afWs_2&h/L#-#e@db.ocxmoqkptenmzazumpcc.supabase.co:5432/postgres"
+PRODUCTION_DATABASE_URL = "postgresql://postgres:7afWs_2&h/L#-#e@db.ocxmoqkptenmzazumpcc.supabase.co:5432/postgres?sslmode=require"
 SUPABASE_PROJECT_URL = "https://ocxmoqkptenmzazumpcc.supabase.co"
 SUPABASE_SERVICE_ROLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9jeG1vcWtwdGVubXphenVtcGNjIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NDUzMjY3OCwiZXhwIjoyMDkwMTA4Njc4fQ.Sz7cYQzHV2ITf7yB3lTqtifWnQwc7GA2_Kc33Ri0KuY"
 SUPABASE_BUCKET_NAME = "robot-files"
