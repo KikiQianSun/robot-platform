@@ -3,6 +3,9 @@ from typing import List
 from pydantic_settings import BaseSettings
 
 
+PRODUCTION_DATABASE_URL = "postgresql://postgres:7afWs_2&h/L#-#e@db.ocxmoqkptenmzazumpcc.supabase.co:5432/postgres"
+
+
 class Settings(BaseSettings):
     APP_ENV: str = "development"
     SECRET_KEY: str = "dev-secret-key"
@@ -20,6 +23,10 @@ class Settings(BaseSettings):
 
     # File storage
     UPLOAD_DIR: str = "./uploads"
+
+    @property
+    def database_url(self) -> str:
+        return PRODUCTION_DATABASE_URL if self.is_production else self.DATABASE_URL
 
     @property
     def origins(self) -> List[str]:
