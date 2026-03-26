@@ -15,15 +15,17 @@ from app.config import settings
 from app.database import Base
 from app.models import upload_record  # noqa: F401
 from app.repositories.upload_record_repository import UploadRecordRepository
-from app.services.upload_record_service import (
+from app.services.csv_processing_service import (
+    normalize_headers,
+    upload_csv_file,
+    validate_rows,
+)
+from app.services.upload_insights_service import (
     build_battery_buckets,
     build_time_buckets,
     filter_rows_by_time_window,
     get_upload_insights,
     matches_filters,
-    normalize_headers,
-    upload_csv_file,
-    validate_rows,
 )
 
 
