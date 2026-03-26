@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { AlertCircle, CheckCircle2, X } from 'lucide-react';
 import { filesApi, type CsvUploadResult, type CsvValidationDetail, type UploadRecord } from '../lib/api';
-import { DeleteConfirmModal } from './logs/DeleteConfirmModal';
-import { FieldSpecBanner } from './logs/FieldSpecBanner';
-import { HistoryTable } from './logs/HistoryTable';
-import { UploadDropzone } from './logs/UploadDropzone';
-import { UploadResultPanel } from './logs/UploadResultPanel';
-import { ValidationErrorModal } from './logs/ValidationErrorModal';
+import { DeleteConfirmModal } from './components/DeleteConfirmModal';
+import { FieldSpecBanner } from './components/FieldSpecBanner';
+import { HistoryTable } from './components/HistoryTable';
+import { UploadDropzone } from './components/UploadDropzone';
+import { UploadResultPanel } from './components/UploadResultPanel';
+import { ValidationErrorModal } from './components/ValidationErrorModal';
 
 export default function Logs() {
   const inputRef = useRef<HTMLInputElement>(null);
