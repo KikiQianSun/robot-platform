@@ -22,7 +22,7 @@ class Settings(BaseSettings):
     SUPABASE_BUCKET: str = SUPABASE_BUCKET_NAME
 
     # Public backend base URL (used to build absolute file URLs)
-    PUBLIC_BACKEND_URL: str = "https://robot-platform-eight.vercel.app"
+    PUBLIC_BACKEND_URL: str = "https://robot-platform-production.up.railway.app"
 
     # File storage
     UPLOAD_DIR: str = "./uploads"
