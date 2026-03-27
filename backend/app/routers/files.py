@@ -61,3 +61,7 @@ async def serve_file(filename: str):
     if not __import__("os").path.exists(path):
         raise HTTPException(status_code=404, detail="File not found")
     return FileResponse(path)
+
+@router.get("/health")
+async def health_check():
+    return {"status": "ok"}
